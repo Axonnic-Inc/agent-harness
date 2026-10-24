@@ -3,6 +3,17 @@
 **Rule: a token lives in the OS keychain and exists in plaintext only inside the environment of the one process that needs it,
 for as long as that process runs.** Never in a config file, never in git, never in a command-line argument.
 
+## First choice: no token at all
+
+Many services run a **hosted MCP server with OAuth** (for example `https://mcp.vercel.com`, `https://mcp.supabase.com/mcp`).
+Add it by URL, then authorize once in the browser. Claude Code stores and refreshes the login itself, so there is no token to manage:
+
+```bash
+claude mcp add --transport http supabase https://mcp.supabase.com/mcp   # then /mcp → supabase → Authenticate
+```
+
+Use `with-secrets` only for **local (stdio) servers** that can't do OAuth and need an API key at launch.
+
 ## Why not just a `.env` file?
 
 A `.env` is better than a token inlined in `~/.claude.json`, but it is still a plaintext file that backups, sync folders, editors
