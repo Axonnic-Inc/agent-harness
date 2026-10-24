@@ -1,0 +1,17 @@
+# Secrets never live in this repo. Real values: macOS Keychain or ~/.config/agent-harness/.env
+.env
+.env.*
+!.env.example
+*.key
+*.pem
+*.sqlite
+*.sqlite-*
+
+# Runtime output
+runs/
+__pycache__/
+*.pyc
+node_modules/
+site/
+.DS_Store
+*.bak*
