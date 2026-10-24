@@ -1,0 +1,57 @@
+name: ci
+on: [push, pull_request]
+permissions: { contents: read }
+
+jobs:
+  secrets:
+    runs-on: ubuntu-latest
+    steps:
+      - uses: actions/checkout@v4
+        with: { fetch-depth: 0 }
+      - name: gitleaks (full history)
+        run: |
+          curl -sSfL https://github.com/gitleaks/gitleaks/releases/download/v8.30.1/gitleaks_8.30.1_linux_x64.tar.gz | tar -xz gitleaks
+          ./gitleaks git --redact --config .gitleaks.toml -v .
+
+  lint-test:
+    runs-on: ubuntu-latest
+    steps:
+      - uses: actions/checkout@v4
+      - run: shellcheck install.sh plugins/harness-core/bin/with-secrets plugins/harness-core/scripts/alert.sh
+      - uses: actions/setup-python@v5
+        with: { python-version: "3.12" }
+      - run: python -m unittest discover -s harness -v
+      - name: installer smoke test (scratch HOME, no CLIs)
+        run: |
+          export HOME=$(mktemp -d) CODEX_HOME=$(mktemp -d)
+          ./install.sh --no-claude
+          test -L "$HOME/.local/bin/astra" && "$HOME/.local/bin/astra" --help >/dev/null
+          ./install.sh --uninstall --no-claude
+          test ! -e "$HOME/.local/bin/astra"
+
+  plugins:
+    runs-on: ubuntu-latest
+    steps:
+      - uses: actions/checkout@v4
+      - uses: actions/setup-node@v4
+        with: { node-version: "22" }
+      - run: npm install -g @anthropic-ai/claude-code
+      - run: |
+          claude plugin validate . --strict
+          for p in plugins/*/; do claude plugin validate "$p" --strict; done
+
+  diagrams-and-docs:
+    runs-on: ubuntu-latest
+    steps:
+      - uses: actions/checkout@v4
+      - uses: actions/setup-node@v4
+        with: { node-version: "22" }
+      - name: render every mermaid diagram (fails on syntax errors)
+        run: |
+          echo '{"args":["--no-sandbox"]}' > /tmp/pptr.json
+          for f in README.md docs/*.md; do
+            npx -y @mermaid-js/mermaid-cli@11 -p /tmp/pptr.json -i "$f" -o "/tmp/out-$(basename "$f")" -q
+          done
+      - uses: actions/setup-python@v5
+        with: { python-version: "3.12" }
+      - run: pip install -r docs/requirements.txt && mkdocs build --strict

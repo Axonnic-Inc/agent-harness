@@ -1,0 +1,35 @@
+site_name: agent-harness
+site_description: A reproducible Claude Code + Codex harness with alerts, a verified-claims agent board, multi-model competitions and keychain-backed secrets.
+repo_url: https://github.com/<you>/agent-harness
+edit_uri: edit/main/docs/
+theme:
+  name: material
+  features: [navigation.sections, navigation.instant, content.code.copy, search.highlight]
+  palette:
+    - media: "(prefers-color-scheme: light)"
+      scheme: default
+      primary: indigo
+      toggle: { icon: material/weather-night, name: Dark mode }
+    - media: "(prefers-color-scheme: dark)"
+      scheme: slate
+      primary: indigo
+      toggle: { icon: material/weather-sunny, name: Light mode }
+markdown_extensions:
+  - tables
+  - admonition
+  - attr_list
+  - pymdownx.highlight
+  - pymdownx.superfences:
+      custom_fences:
+        - name: mermaid
+          class: mermaid
+          format: !!python/name:pymdownx.superfences.fence_code_format
+nav:
+  - Overview: index.md
+  - Architecture: architecture.md
+  - astra: astra.md
+  - Agent board: agent-board.md
+  - Secrets: secrets.md
+  - Alerts: alerts.md
+  - Install: install.md
+  - Customize: customize.md
