@@ -3,7 +3,7 @@
 ## Quick start
 
 ```bash
-git clone https://github.com/<you>/agent-harness ~/agent-harness
+git clone https://github.com/i-use-arch-linux-btw/agent-harness ~/agent-harness
 cd ~/agent-harness
 brew bundle              # macOS; on Linux: git jq python3 node, plus the claude and codex CLIs
 ./install.sh --dry-run   # prints every change, makes none

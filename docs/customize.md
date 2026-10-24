@@ -72,8 +72,9 @@ Run `python3 -m unittest discover -s harness` after changes.
 ## Share your fork
 
 ```bash
-gh repo create <you>/agent-harness --private --source . --push   # or --public once you've reviewed NOTICE.md
+gh repo fork i-use-arch-linux-btw/agent-harness --clone   # your own copy to customize
+cd agent-harness && ./install.sh --dry-run
 ```
 
-Friends then run either the full installer, or in Claude Code only:
-`/plugin marketplace add <you>/agent-harness` → `/plugin install harness-core@agent-harness`.
+Friends then install from your fork, either with the full installer or, in Claude Code only:
+`/plugin marketplace add <your-github-user>/agent-harness` → `/plugin install harness-core@agent-harness`.

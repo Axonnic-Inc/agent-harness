@@ -55,7 +55,7 @@ flowchart TB
 ## Install
 
 ```bash
-git clone https://github.com/<you>/agent-harness ~/agent-harness   # anywhere outside an iCloud/Dropbox folder
+git clone https://github.com/i-use-arch-linux-btw/agent-harness ~/agent-harness   # anywhere outside an iCloud/Dropbox folder
 cd ~/agent-harness
 brew bundle                 # git gh jq node python gitleaks terminal-notifier claude-code codex
 ./install.sh --dry-run      # see exactly what it will touch
@@ -67,7 +67,7 @@ Then restart Claude Code and Codex. Options: `--plugins all` (adds motion-design
 **Claude Code only?** You don't need the clone:
 
 ```text
-/plugin marketplace add <you>/agent-harness
+/plugin marketplace add i-use-arch-linux-btw/agent-harness
 /plugin install harness-core@agent-harness
 ```
 
