@@ -55,7 +55,7 @@ flowchart TB
 ## Install
 
 ```bash
-git clone https://github.com/i-use-arch-linux-btw/agent-harness ~/agent-harness   # anywhere outside an iCloud/Dropbox folder
+git clone https://github.com/Axonnic-Inc/agent-harness ~/agent-harness   # anywhere outside an iCloud/Dropbox folder
 cd ~/agent-harness
 brew bundle                 # git gh jq node python gitleaks terminal-notifier claude-code codex
 ./install.sh --dry-run      # see exactly what it will touch
@@ -67,7 +67,7 @@ Then restart Claude Code and Codex. Options: `--plugins all` (adds motion-design
 **Claude Code only?** You don't need the clone:
 
 ```text
-/plugin marketplace add i-use-arch-linux-btw/agent-harness
+/plugin marketplace add Axonnic-Inc/agent-harness
 /plugin install harness-core@agent-harness
 ```
 
@@ -77,7 +77,7 @@ Then restart Claude Code and Codex. Options: `--plugins all` (adds motion-design
 |---|---|---|---|
 | **harness-core** plugin | 3 alert hooks, the agent-board MCP server, `with-secrets`, `blocked-alerts` skill | `plugins/harness-core/` | [alerts](alerts.md) · [board](agent-board.md) · [secrets](secrets.md) |
 | **dev-mcp** plugin | Playwright, Chrome DevTools, Context7 MCP servers | `plugins/dev-mcp/` | [architecture](architecture.md) |
-| **motion-design** plugin | 15 web-motion skills (GSAP, Motion, SVG, Three.js, GLSL) | `plugins/motion-design/` | [NOTICE](https://github.com/i-use-arch-linux-btw/agent-harness/blob/main/plugins/motion-design/NOTICE.md) |
+| **motion-design** plugin | 15 web-motion skills (GSAP, Motion, SVG, Three.js, GLSL) | `plugins/motion-design/` | [NOTICE](https://github.com/Axonnic-Inc/agent-harness/blob/main/plugins/motion-design/NOTICE.md) |
 | **astra** | single runs and multi-model competitions with cross-verification | `harness/` | [astra](astra.md) |
 | **Codex config** | working rules, `compete` skill, agent-board registration | `codex/` | [architecture](architecture.md) |
 | **Installer** | symlinks, MCP registration, plugin install, settings merge, uninstall | `install.sh` | [install](install.md) |
@@ -139,4 +139,4 @@ Browse `docs/` on GitHub (diagrams render natively) or build the site: `pip inst
 
 ## License
 
-MIT, see [LICENSE](https://github.com/i-use-arch-linux-btw/agent-harness/blob/main/LICENSE). Third-party skill provenance: [plugins/motion-design/NOTICE.md](https://github.com/i-use-arch-linux-btw/agent-harness/blob/main/plugins/motion-design/NOTICE.md).
+MIT, see [LICENSE](https://github.com/Axonnic-Inc/agent-harness/blob/main/LICENSE). Third-party skill provenance: [plugins/motion-design/NOTICE.md](https://github.com/Axonnic-Inc/agent-harness/blob/main/plugins/motion-design/NOTICE.md).

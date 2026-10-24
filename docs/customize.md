@@ -72,7 +72,7 @@ Run `python3 -m unittest discover -s harness` after changes.
 ## Share your fork
 
 ```bash
-gh repo fork i-use-arch-linux-btw/agent-harness --clone   # your own copy to customize
+gh repo fork Axonnic-Inc/agent-harness --clone   # your own copy to customize
 cd agent-harness && ./install.sh --dry-run
 ```
 
