@@ -14,24 +14,12 @@ Clone **outside** iCloud Drive, Dropbox or OneDrive folders: sync clients and `.
 
 ## What `install.sh` touches
 
-```mermaid
-flowchart TB
-    I(["./install.sh"]) --> PRE["preflight<br/>git · python3 ≥ 3.9 · jq required<br/>node · terminal-notifier recommended"]
-    PRE --> LNK["symlinks (existing files → *.pre-agent-harness)"]
-    LNK --> L1["~/.codex/harness/{astra.py, astra_ext.py, board.py, prices.json}"]
-    LNK --> L2["~/.codex/skills/compete"]
-    LNK --> L3["~/.local/bin/{astra, with-secrets, harness-alert}"]
-    PRE --> CONF["~/.config/agent-harness/alert.conf<br/>(only if missing)"]
-    PRE --> CX{"--no-codex?"}
-    CX -->|no| CX1["~/.codex/AGENTS.md (only if missing)"]
-    CX -->|no| CX2["codex mcp add agent-board<br/>(only if not registered)"]
-    PRE --> CL{"--no-claude?"}
-    CL -->|no| CL1["claude plugin marketplace add &lt;repo&gt;"]
-    CL1 --> CL2["claude plugin install harness-core, dev-mcp<br/>(--plugins all adds motion-design)"]
-    CL2 --> CL3["warn about duplicate hooks or a user-scope agent-board"]
-    PRE --> MG{"--merge-settings?"}
-    MG -->|yes| MG1["deep-merge claude/settings.example.json<br/>objects merge · arrays union · YOUR scalars win<br/>backup: settings.json.pre-agent-harness.&lt;ts&gt;"]
-```
+<picture>
+  <source media="(prefers-color-scheme: dark)" srcset="diagrams/install-steps-dark.png">
+  <img alt="What install.sh touches: symlinks with backups, alert config, Codex registration, Claude plugins, optional settings merge." src="diagrams/install-steps-light.png">
+</picture>
+
+<sub>Diagram source: <a href="diagrams/install-steps.mmd"><code>install-steps.mmd</code></a></sub>
 
 Every step is idempotent: re-running prints `ok` for what's already in place. After `git pull`, re-run it to pick up new
 links or plugins (`claude plugin marketplace update agent-harness` is run for you).

@@ -8,49 +8,12 @@
 - **Secrets done properly.** MCP tokens live in the OS keychain and are injected at launch by `with-secrets`. None sit in config files, git or process arguments.
 - **Native packaging.** Claude Code plugins and a marketplace, a Homebrew `Brewfile`, and an idempotent installer that symlinks so the repo *is* your harness.
 
-```mermaid
-flowchart TB
-    you(("🧑 You"))
+<picture>
+  <source media="(prefers-color-scheme: dark)" srcset="docs/diagrams/overview-dark.png">
+  <img alt="System overview: you chat with Claude Code and Codex; both share the agent board over MCP; Codex starts astra competitions; Claude's hooks ring harness-alert; with-secrets reads tokens from the OS keychain." src="docs/diagrams/overview-light.png">
+</picture>
 
-    cc["<b>Claude Code</b><br/><sub>plugins: harness-core · dev-mcp · motion-design</sub>"]
-    cx["<b>Codex</b><br/><sub>AGENTS.md rules · compete skill</sub>"]
-
-    subgraph H["agent-harness · this repo, symlinked into your home"]
-        alert["<b>harness-alert</b><br/><sub>🔊 sound · 🗣 voice · 🔔 banner → you</sub>"]
-        board[("<b>agent board</b><br/><sub>MCP · SQLite · verified claims</sub>")]
-        astra["<b>astra</b><br/><sub>do · review · compete<br/>N solvers → cross-model verifiers → judge</sub>"]
-        ws["<b>with-secrets</b><br/><sub>token injected at launch</sub>"]
-    end
-
-    mcp["<b>dev MCP servers</b><br/><sub>Playwright · Chrome DevTools · Context7</sub>"]
-    kc[("🔐 <b>OS keychain</b><br/><sub>service agent-harness</sub>")]
-    tok["<b>token-backed MCP</b><br/><sub>Supabase · Vercel · …</sub>"]
-
-    you -->|chat| cc
-    you -->|chat| cx
-    cc -->|"hook: blocked on you"| alert
-    cc -->|"MCP: post · search · verify"| board
-    cx -->|"MCP: post · search · verify"| board
-    cx -->|"astra compete"| astra
-    astra -->|"run report"| board
-    board -->|escalate| alert
-    cc --> mcp
-    cc -->|launches| ws
-    ws --> tok
-    ws -->|"reads on demand"| kc
-
-    classDef agent fill:#1f6feb1a,stroke:#1f6feb,stroke-width:2px
-    classDef core fill:#2da44e1a,stroke:#2da44e,stroke-width:2px
-    classDef store fill:#8957e51a,stroke:#8957e5,stroke-width:2px
-    classDef secret fill:#d299221f,stroke:#d29922,stroke-width:2px
-    classDef ext fill:#6e77811a,stroke:#6e7781
-    class cc,cx agent
-    class alert,astra,ws core
-    class board store
-    class kc secret
-    class mcp,tok ext
-    style H fill:#8c959f12,stroke:#8c959f,stroke-dasharray:4 3
-```
+<sub>Diagram source: <a href="docs/diagrams/overview.mmd"><code>overview.mmd</code></a></sub>
 
 ## Install
 
@@ -89,15 +52,12 @@ Then restart Claude Code and Codex. Options: `--plugins all` (adds motion-design
 
 **2. Agents hand work to each other through a board, not through you.** Claude and Codex post *claims*, *evidence* and *artifacts* to a shared board. Only a *verifier*, *reviewer* or *human*, and never the author, can mark a claim verified. [More →](docs/agent-board.md)
 
-```mermaid
-stateDiagram-v2
-    direction LR
-    [*] --> unverified: post_message
-    unverified --> verified: set_status by a judge role (never the author)
-    unverified --> refuted: set_status + evidence
-    verified --> unverified: re-opened
-    refuted --> unverified: re-opened
-```
+<picture>
+  <source media="(prefers-color-scheme: dark)" srcset="docs/diagrams/board-status-dark.png">
+  <img alt="Post status lifecycle: every post starts unverified and only a judge role that is not the author can mark it verified or refuted." src="docs/diagrams/board-status-light.png">
+</picture>
+
+<sub>Diagram source: <a href="docs/diagrams/board-status.mmd"><code>board-status.mmd</code></a></sub>
 
 **3. Hard problems get a competition, not a single guess.** `astra compete` gives *N* solvers different models and different starting angles, cross-checks each answer with *other* models, refines, and lets a judge rank them. [More →](docs/astra.md)
 
@@ -116,6 +76,8 @@ agent-harness/
 ├── codex/                            # AGENTS.md, config.example.toml, skills/compete
 ├── claude/settings.example.json      # optional personal prefs (--merge-settings)
 ├── docs/                             # architecture, astra, agent-board, secrets, alerts, install, customize
+│   └── diagrams/                     # *.mmd sources + rendered *-light.png / *-dark.png
+├── scripts/render-diagrams.sh        # re-render diagrams after editing a .mmd
 ├── install.sh   Brewfile   .env.example   mkdocs.yml
 └── .gitleaks.toml  .pre-commit-config.yaml  .github/workflows/ci.yml
 ```
@@ -127,7 +89,7 @@ astra's default models are Codex's `gpt-6-astra` / `gpt-6.1-sol` plus `claude:op
 
 ## Docs
 
-Browse `docs/` on GitHub (diagrams render natively) or build the site: `pip install -r docs/requirements.txt && mkdocs serve`.
+Browse `docs/` on GitHub (diagrams are pre-rendered light/dark images, so they show everywhere, including GitHub mobile) or build the site: `pip install -r docs/requirements.txt && mkdocs serve`.
 
 - [Architecture](docs/architecture.md): every component, where state lives, and the life of a request
 - [astra](docs/astra.md): `do`, `review`, `compete`, budgets, isolation, reports

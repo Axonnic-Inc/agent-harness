@@ -57,6 +57,18 @@ Register it in `.claude-plugin/marketplace.json`:
 { "name": "my-plugin", "source": "./plugins/my-plugin", "description": "..." }
 ```
 
+## Edit a diagram
+
+Diagrams live as Mermaid sources in `docs/diagrams/*.mmd`. Pages embed pre-rendered PNGs (a light and a dark variant,
+picked by the reader's color scheme), so they render the same on GitHub, GitHub mobile and the docs site.
+
+```bash
+$EDITOR docs/diagrams/astra-compete.mmd
+scripts/render-diagrams.sh          # needs Node; writes <name>-light.png and <name>-dark.png
+```
+
+CI fails if a source has a syntax error or a PNG is missing.
+
 ## Tune astra
 
 | What | Where |

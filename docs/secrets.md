@@ -30,20 +30,12 @@ principle, and every major secret manager) is the same:
 
 ## How `with-secrets` resolves a token
 
-```mermaid
-flowchart LR
-    L["Claude Code / Codex starts an MCP server:<br/><code>with-secrets SUPABASE_ACCESS_TOKEN -- npx … supabase</code>"] --> E{"already in<br/>environment?"}
-    E -->|"yes (CI, direnv, op run)"| X
-    E -->|no| K{"OS keychain<br/>service agent-harness<br/>account NAME"}
-    K -->|found| X
-    K -->|"not found"| F{"~/.config/agent-harness/.env<br/>(must be chmod 600)"}
-    F -->|found| X
-    F -->|"not found / wrong mode"| ERR(["exit 1:<br/>'NAME not found … with-secrets --set NAME'"])
-    X["export NAME=…<br/>exec the real command"] --> S["MCP server process<br/>(token only in its env)"]
+<picture>
+  <source media="(prefers-color-scheme: dark)" srcset="diagrams/secrets-lookup-dark.png">
+  <img alt="with-secrets lookup order: environment, then OS keychain, then a chmod 600 .env file, otherwise a clear error." src="diagrams/secrets-lookup-light.png">
+</picture>
 
-    classDef secret fill:#d2992222,stroke:#d29922
-    class K,F secret
-```
+<sub>Diagram source: <a href="diagrams/secrets-lookup.mmd"><code>secrets-lookup.mmd</code></a></sub>
 
 `exec` replaces the wrapper with the real server, so there is no lingering parent process and the token appears in no
 command line. On Linux the same lookup uses libsecret (`secret-tool`).
@@ -79,14 +71,12 @@ Rotate a token whenever it has been printed, pasted into a chat or transcript, c
 
 ## Leak guards in this repo
 
-```mermaid
-flowchart LR
-    ED["you edit"] --> PC{"pre-commit<br/>gitleaks + shellcheck"}
-    PC -->|"leak found"| BLK(["commit blocked"])
-    PC -->|clean| CM["commit"] --> PU["push"] --> CI{"CI: gitleaks (full history)<br/>shellcheck · tests · plugin validate · diagrams"}
-    CI -->|fail| RED(["❌ red build"])
-    CI -->|pass| OK(["✅"])
-```
+<picture>
+  <source media="(prefers-color-scheme: dark)" srcset="diagrams/leak-guards-dark.png">
+  <img alt="Leak guards: pre-commit gitleaks and shellcheck block bad commits, then CI rechecks everything on push." src="diagrams/leak-guards-light.png">
+</picture>
+
+<sub>Diagram source: <a href="diagrams/leak-guards.mmd"><code>leak-guards.mmd</code></a></sub>
 
 - `.gitignore` excludes `.env*` (except `.env.example`), keys and SQLite files before any content exists.
 - `.gitleaks.toml` extends the default ruleset with Supabase (`sbp_…`) and Vercel (`vcp_…`) token shapes.

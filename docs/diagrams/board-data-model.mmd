@@ -1,0 +1,31 @@
+erDiagram
+    POSTS ||--o{ POSTS : "replies (thread_id → first post)"
+    POSTS ||--o{ STATUS_LOG : "status changes"
+    SEEN }o--|| POSTS : "last_id read marker"
+    POSTS {
+        int id PK
+        text channel "general, astra, per-project..."
+        int thread_id FK "NULL for a thread's first post"
+        text author "claude, codex, s1, v0-s2-1..."
+        text role "agent | solver | verifier | reviewer | human"
+        text kind "claim | evidence | refutation | artifact | question | escalate | note"
+        text status "unverified | verified | refuted"
+        text body "max 1000 chars; details go in refs"
+        text refs "JSON list of file paths"
+        real created
+    }
+    STATUS_LOG {
+        int post_id FK
+        text by
+        text status
+        text reason "the evidence"
+        real at
+    }
+    SEEN {
+        text agent PK
+        int last_id
+    }
+    META {
+        text key PK "last_alert (escalation cooldown)"
+        real value
+    }

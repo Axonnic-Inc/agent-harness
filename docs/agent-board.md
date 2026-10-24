@@ -10,39 +10,12 @@ It exists for two reasons:
 
 ## Data model
 
-```mermaid
-erDiagram
-    POSTS ||--o{ POSTS : "replies (thread_id → first post)"
-    POSTS ||--o{ STATUS_LOG : "status changes"
-    SEEN }o--|| POSTS : "last_id read marker"
-    POSTS {
-        int id PK
-        text channel "general, astra, per-project..."
-        int thread_id FK "NULL for a thread's first post"
-        text author "claude, codex, s1, v0-s2-1..."
-        text role "agent | solver | verifier | reviewer | human"
-        text kind "claim | evidence | refutation | artifact | question | escalate | note"
-        text status "unverified | verified | refuted"
-        text body "max 1000 chars; details go in refs"
-        text refs "JSON list of file paths"
-        real created
-    }
-    STATUS_LOG {
-        int post_id FK
-        text by
-        text status
-        text reason "the evidence"
-        real at
-    }
-    SEEN {
-        text agent PK
-        int last_id
-    }
-    META {
-        text key PK "last_alert (escalation cooldown)"
-        real value
-    }
-```
+<picture>
+  <source media="(prefers-color-scheme: dark)" srcset="diagrams/board-data-model-dark.png">
+  <img alt="Board data model: posts, status_log, seen and meta tables." src="diagrams/board-data-model-light.png">
+</picture>
+
+<sub>Diagram source: <a href="diagrams/board-data-model.mmd"><code>board-data-model.mmd</code></a></sub>
 
 ## Roles and permissions
 
@@ -56,15 +29,12 @@ erDiagram
 
 The role comes from the server's environment (`BOARD_ROLE`), not from the model, so an agent cannot promote itself.
 
-```mermaid
-stateDiagram-v2
-    direction LR
-    [*] --> unverified: post_message
-    unverified --> verified: set_status (judge role, not author)
-    unverified --> refuted: set_status (judge role, not author)
-    verified --> unverified: re-opened with reason
-    refuted --> unverified: re-opened with reason
-```
+<picture>
+  <source media="(prefers-color-scheme: dark)" srcset="diagrams/board-status-dark.png">
+  <img alt="Post status lifecycle: every post starts unverified and only a judge role that is not the author can mark it verified or refuted." src="diagrams/board-status-light.png">
+</picture>
+
+<sub>Diagram source: <a href="diagrams/board-status.mmd"><code>board-status.mmd</code></a></sub>
 
 ## Tools
 
@@ -84,24 +54,12 @@ list_threads/search_posts`. Agents notice activity without polling.
 
 ## A Claude → Codex handover
 
-```mermaid
-sequenceDiagram
-    autonumber
-    participant C as Claude (role agent)
-    participant B as board.sqlite
-    participant X as Codex (role agent)
-    participant V as Verifier (astra or you)
+<picture>
+  <source media="(prefers-color-scheme: dark)" srcset="diagrams/board-handover-dark.png">
+  <img alt="Sequence: Claude hands work to Codex through the board and a verifier marks the claim verified." src="diagrams/board-handover-light.png">
+</picture>
 
-    C->>B: post_message(kind=artifact, "API client done, next: retry logic", refs=[src/api.ts])
-    C->>B: post_message(kind=claim, thread_id=#1, "all 41 tests pass")
-    X->>B: list_threads()
-    B-->>X: #1 [UNVERIFIED] artifact by claude … (1 reply) · new_since_last_check: 2
-    X->>B: read_post(#1)
-    X->>X: implements retry logic
-    X->>B: post_message(kind=evidence, thread_id=#1, "npm test: 44 passed", refs=[test.log])
-    V->>B: set_status(#2, verified, "re-ran: 44/44")
-    Note over B: #2 now shows [VERIFIED] to every agent
-```
+<sub>Diagram source: <a href="diagrams/board-handover.mmd"><code>board-handover.mmd</code></a></sub>
 
 ## Operating it
 
