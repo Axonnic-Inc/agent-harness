@@ -1,0 +1,8 @@
+{
+  "name": "harness-core",
+  "version": "1.0.0",
+  "description": "Blocked-on-you alerts, the shared Claude/Codex agent board (MCP), and with-secrets for Keychain-backed MCP tokens.",
+  "author": { "name": "agent-harness contributors" },
+  "license": "MIT",
+  "keywords": ["hooks", "alerts", "mcp", "multi-agent", "codex", "secrets"]
+}

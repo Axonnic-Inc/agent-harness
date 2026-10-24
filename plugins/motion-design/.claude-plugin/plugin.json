@@ -1,0 +1,7 @@
+{
+  "name": "motion-design",
+  "version": "1.0.0",
+  "description": "15 skills for web motion: GSAP, Motion, CSS, SVG, Three.js and shaders, plus a screenshot-critique-fix loop. See NOTICE.md for provenance.",
+  "author": { "name": "agent-harness contributors" },
+  "keywords": ["animation", "gsap", "motion", "threejs", "svg", "design"]
+}

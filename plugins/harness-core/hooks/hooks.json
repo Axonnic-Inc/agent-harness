@@ -1,0 +1,22 @@
+{
+  "description": "Loud alert whenever a session is blocked on you: permission prompt, auto-mode denial, or a question.",
+  "hooks": {
+    "Notification": [
+      {
+        "matcher": "permission_prompt|elicitation_dialog",
+        "hooks": [{ "type": "command", "command": "\"${CLAUDE_PLUGIN_ROOT}/scripts/alert.sh\" 'permission needed'", "timeout": 10 }]
+      }
+    ],
+    "PermissionDenied": [
+      {
+        "hooks": [{ "type": "command", "command": "\"${CLAUDE_PLUGIN_ROOT}/scripts/alert.sh\" 'auto mode blocked a step'", "timeout": 10 }]
+      }
+    ],
+    "PreToolUse": [
+      {
+        "matcher": "AskUserQuestion",
+        "hooks": [{ "type": "command", "command": "\"${CLAUDE_PLUGIN_ROOT}/scripts/alert.sh\" 'question for you'", "timeout": 10 }]
+      }
+    ]
+  }
+}

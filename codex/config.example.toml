@@ -1,0 +1,20 @@
+# Merge what you want into ~/.codex/config.toml. install.sh only registers the agent-board MCP server
+# (via `codex mcp add`) and leaves the rest of your config untouched.
+
+model_reasoning_effort = "high"
+project_doc_fallback_filenames = ["CLAUDE.md"]   # Codex also reads a repo's CLAUDE.md
+
+[mcp_servers.agent-board]
+command = "python3"
+args = ["~/.codex/harness/board.py"]             # install.sh writes the absolute path
+default_tools_approval_mode = "approve"
+
+[mcp_servers.agent-board.env]
+BOARD_AGENT = "codex"
+BOARD_ROLE = "agent"
+# BOARD_DB defaults to ~/.agent-board/board.sqlite, shared with Claude Code
+
+# A token-backed server, launched through with-secrets so the token never sits in this file:
+# [mcp_servers.supabase]
+# command = "with-secrets"
+# args = ["SUPABASE_ACCESS_TOKEN", "--", "npx", "-y", "@supabase/mcp-server-supabase@latest"]

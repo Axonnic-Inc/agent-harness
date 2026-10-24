@@ -1,0 +1,14 @@
+{
+  "mcpServers": {
+    "agent-board": {
+      "command": "python3",
+      "args": ["${CLAUDE_PLUGIN_ROOT}/mcp/board.py"],
+      "env": {
+        "BOARD_DB": "${HOME}/.agent-board/board.sqlite",
+        "BOARD_AGENT": "claude",
+        "BOARD_ROLE": "agent",
+        "BOARD_ALERT": "${CLAUDE_PLUGIN_ROOT}/scripts/alert.sh 'board escalation'"
+      }
+    }
+  }
+}

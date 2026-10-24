@@ -1,0 +1,5 @@
+{
+ "_note": "USD per million tokens (API list prices) used by `astra usage`. Collected 2026-10-23 from third-party summaries of OpenAI pricing (propakistani.pk 2026-09-30, apidog.com, anotherwrapper.com); verify at developers.openai.com. Codex runs signed in with ChatGPT are billed to the plan, so these are API-equivalent figures. gpt-6-astra 'cached' is an estimate: 10% of input, the GPT-6 Sol ratio; no source listed it.",
+ "gpt-6.1-sol": {"in": 2.0, "cached": 0.10, "out": 10.0},
+ "gpt-6-astra": {"in": 10.0, "cached": 1.0, "out": 50.0}
+}

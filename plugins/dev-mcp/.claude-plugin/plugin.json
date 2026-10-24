@@ -1,0 +1,8 @@
+{
+  "name": "dev-mcp",
+  "version": "1.0.0",
+  "description": "Browser and docs MCP servers: Playwright and Chrome DevTools (headless, isolated) plus Context7 live library docs.",
+  "author": { "name": "agent-harness contributors" },
+  "license": "MIT",
+  "keywords": ["mcp", "playwright", "chrome-devtools", "context7"]
+}

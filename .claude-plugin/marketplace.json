@@ -1,0 +1,14 @@
+{
+  "$schema": "https://anthropic.com/claude-code/marketplace.schema.json",
+  "name": "agent-harness",
+  "description": "A Claude Code + Codex harness: alerts when blocked, a shared verified-claims agent board, astra multi-model compete, Keychain-backed MCP secrets.",
+  "owner": { "name": "agent-harness contributors" },
+  "plugins": [
+    { "name": "harness-core", "source": "./plugins/harness-core", "category": "productivity",
+      "description": "Blocked-on-you alerts, the shared Claude/Codex agent board MCP, and with-secrets." },
+    { "name": "dev-mcp", "source": "./plugins/dev-mcp", "category": "development",
+      "description": "Playwright, Chrome DevTools and Context7 MCP servers." },
+    { "name": "motion-design", "source": "./plugins/motion-design", "category": "design",
+      "description": "15 web-motion skills (GSAP, Motion, SVG, Three.js, shaders) and a critique loop." }
+  ]
+}

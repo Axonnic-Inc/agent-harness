@@ -1,0 +1,16 @@
+{
+  "$schema": "https://json.schemastore.org/claude-code-settings.json",
+  "_comment": "Optional personal preferences. Hooks, MCP servers and skills come from the plugins; merge only what you want: ./install.sh --merge-settings",
+  "advisorModel": "opus",
+  "tui": "fullscreen",
+  "permissions": {
+    "allow": ["Bash(ls:*)", "Bash(grep:*)", "Bash(tail:*)", "Bash(wc:*)", "Bash(astra status:*)", "Bash(astra board:*)"]
+  },
+  "autoMode": {
+    "soft_deny": ["$defaults"],
+    "environment": [
+      "**Cloud provider(s)**: describe your projects/VMs here so auto mode knows what is sensitive",
+      "**Sensitive data locations**: ~/.ssh, ~/.config/agent-harness/.env (secrets live in the OS keychain, service agent-harness)"
+    ]
+  }
+}
