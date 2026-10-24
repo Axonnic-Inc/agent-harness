@@ -3,17 +3,17 @@ from pathlib import Path
 sys.path.insert(0, str(Path(__file__).resolve().parent))
 import astra_ext as ext
 
-GOOD = """# Brief: AFE BIAS re-compensation
+GOOD = """# Brief: API retry backoff
 ## Goal
-Re-compensate the BIAS loop.
+Add exponential backoff to the API client.
 ## Done when
-- `bash tools/build_all.sh` rc 0; DRC 0/0
+- `bash tools/build_all.sh` rc 0; 0 lint errors
 ## Owns
-- `pcb/afe/*`, `reference_design/afe_schematic/*`
+- `src/api/*`, `docs/api_spec/*`
 ## Out of scope
-DIGITAL board.
+The UI.
 ## Do not change
-B2B pinout.
+The public API surface.
 ## Report
 changed / checks with numbers / flagged, not done
 """
@@ -22,7 +22,7 @@ changed / checks with numbers / flagged, not done
 class Brief(unittest.TestCase):
     def test_good_brief(self):
         self.assertEqual(ext.brief_problems(GOOD), [])
-        self.assertEqual(ext.owns(GOOD), ['pcb/afe/*', 'reference_design/afe_schematic/*'])
+        self.assertEqual(ext.owns(GOOD), ['src/api/*', 'docs/api_spec/*'])
 
     def test_bold_and_plain_forms(self):
         t = "**Goal:** fix it\nDone when: tests pass\n**Owns:** tools/a.py, tools/b.py\nOut of scope: x\nDo not change: y\nReport: z\n"
@@ -34,12 +34,12 @@ class Brief(unittest.TestCase):
         self.assertEqual(len(p), 4)
 
     def test_synonym_headings_of_real_worker_briefs(self):
-        t = ("# Fix pass: Rev C.2 -> C.3\n\n## Your clone and ownership (do not step outside it)\n"
-             "Clone: `/home/me/proj/afe`. You own `pcb/afe/` and `tools/afe_*` (except `B2B_PINOUT.csv`).\n\n"
-             "Hand-offs: note changes to `REPORT.md` in FIX_NOTES.\n\nDone means: ERC 0, DRC 0/0.\n\n"
-             "## Owner decisions: do NOT change\nB2B pinout.\n")
+        t = ("# Fix pass: v2.2 -> v2.3\n\n## Your clone and ownership (do not step outside it)\n"
+             "Clone: `/home/me/proj/api`. You own `src/api/` and `tools/api_*` (except `SCHEMA.json`).\n\n"
+             "Hand-offs: note changes to `REPORT.md` in FIX_NOTES.\n\nDone means: tests green, 0 lint errors.\n\n"
+             "## Owner decisions: do NOT change\nThe public API surface.\n")
         self.assertEqual(ext.brief_problems(t), [])
-        self.assertEqual(ext.owns(t), ['pcb/afe/*', 'tools/afe_*'])
+        self.assertEqual(ext.owns(t), ['src/api/*', 'tools/api_*'])
         self.assertFalse(ext.owns_explicit(t))
         self.assertTrue(ext.owns_explicit(GOOD))
 
@@ -47,9 +47,9 @@ class Brief(unittest.TestCase):
         self.assertNotIn('goal', ext.sections("The goal is simple.\n"))
 
     def test_overlap(self):
-        self.assertTrue(ext.overlap('pcb/afe/*', 'pcb/afe/afe.kicad_pcb'))
+        self.assertTrue(ext.overlap('src/api/*', 'src/api/client.py'))
         self.assertTrue(ext.overlap('reference_design/bom/*', 'reference_design/*'))
-        self.assertFalse(ext.overlap('pcb/afe/*', 'pcb/digital/*'))
+        self.assertFalse(ext.overlap('src/api/*', 'src/ui/*'))
 
 
 class Gate(unittest.TestCase):
@@ -87,17 +87,17 @@ class Repo(unittest.TestCase):
 
     def test_milestone_watcher_commits_tracked_and_owned_only(self):
         said = []
-        w = ext.MilestoneWatcher(self.r, said.append, owns=['pcb/afe/*'])
+        w = ext.MilestoneWatcher(self.r, said.append, owns=['src/api/*'])
         (self.r / 'a.txt').write_text('2')                      # tracked, modified: committed
-        (self.r / 'pcb' / 'afe').mkdir(parents=True)
-        (self.r / 'pcb' / 'afe' / 'afe.kicad_pcb').write_text('b')  # new, inside Owns: committed
+        (self.r / 'src' / 'api').mkdir(parents=True)
+        (self.r / 'src' / 'api' / 'client.py').write_text('b')  # new, inside Owns: committed
         (self.r / '.playwright-mcp').mkdir()
         (self.r / '.playwright-mcp' / 'x.log').write_text('scratch')  # new, outside Owns: left alone
-        (self.r / 'MILESTONE').write_text('BIAS loop done')
+        (self.r / 'MILESTONE').write_text('backoff done')
         w.commit()
         g = lambda *a: subprocess.run(['git', '-C', str(self.r), *a], capture_output=True, text=True).stdout.strip()
-        self.assertEqual(g('log', '-1', '--format=%s'), 'milestone: BIAS loop done')
-        self.assertEqual(sorted(g('show', '--name-only', '--format=', 'HEAD').split()), ['a.txt', 'pcb/afe/afe.kicad_pcb'])
+        self.assertEqual(g('log', '-1', '--format=%s'), 'milestone: backoff done')
+        self.assertEqual(sorted(g('show', '--name-only', '--format=', 'HEAD').split()), ['a.txt', 'src/api/client.py'])
         self.assertFalse((self.r / 'MILESTONE').exists())
         self.assertTrue(any('outside Owns not committed: .playwright-mcp/x.log' in s for s in said))
         self.assertTrue(any('milestone committed' in s for s in said))
@@ -112,7 +112,7 @@ class Repo(unittest.TestCase):
         hook.write_text('#!/bin/sh\nexit 1\n')
         hook.chmod(0o755)
         (self.r / 'MILESTONE').write_text('first try')
-        w = ext.MilestoneWatcher(self.r, said.append, owns=['pcb/*'])
+        w = ext.MilestoneWatcher(self.r, said.append, owns=['src/*'])
         w.commit()
         self.assertTrue((self.r / 'MILESTONE').exists())        # failed commit keeps the request
         self.assertTrue(any('MILESTONE kept' in s for s in said))
@@ -125,21 +125,21 @@ class Repo(unittest.TestCase):
     def test_retry_keeps_staged_owned_files_and_renames(self):
         said = []
         g = lambda *a: subprocess.run(['git', '-C', str(self.r), *a], capture_output=True, text=True)
-        (self.r / 'pcb').mkdir()
-        (self.r / 'pcb' / 'new.kicad_pcb').write_text('n')
-        g('mv', 'a.txt', 'pcb/a_moved.txt')               # a rename of a tracked file into Owns
+        (self.r / 'src').mkdir()
+        (self.r / 'src' / 'new.py').write_text('n')
+        g('mv', 'a.txt', 'src/a_moved.txt')               # a rename of a tracked file into Owns
         hook = self.r / '.git' / 'hooks' / 'pre-commit'
         hook.write_text('#!/bin/sh\nexit 1\n')
         hook.chmod(0o755)
         (self.r / 'MILESTONE').write_text('rename + new')
-        w = ext.MilestoneWatcher(self.r, said.append, owns=['pcb/*'])
+        w = ext.MilestoneWatcher(self.r, said.append, owns=['src/*'])
         w.commit()                                        # fails: files are now staged by our own attempt
         self.assertTrue((self.r / 'MILESTONE').exists())
         hook.unlink()
         w.commit()
         self.assertFalse((self.r / 'MILESTONE').exists())
         files = g('show', '--name-status', '--no-renames', '--format=', 'HEAD').stdout.split()
-        self.assertEqual(sorted(files), sorted(['D', 'a.txt', 'A', 'pcb/a_moved.txt', 'A', 'pcb/new.kicad_pcb']))
+        self.assertEqual(sorted(files), sorted(['D', 'a.txt', 'A', 'src/a_moved.txt', 'A', 'src/new.py']))
 
     def test_stop_joins_thread_without_error(self):
         said = []
@@ -153,8 +153,8 @@ class Repo(unittest.TestCase):
         self.assertEqual(sum('milestone committed' in s for s in said), 1)
 
     def test_pathspec(self):
-        self.assertEqual(ext.pathspec('pcb/afe/*'), 'pcb/afe/')
-        self.assertEqual(ext.pathspec('tools/afe_*'), ':(glob)tools/afe_*')
+        self.assertEqual(ext.pathspec('src/api/*'), 'src/api/')
+        self.assertEqual(ext.pathspec('tools/api_*'), ':(glob)tools/api_*')
         self.assertEqual(ext.pathspec('tools/x.py'), 'tools/x.py')
 
     def test_preflight_overlap_and_outside_owns(self):
@@ -190,7 +190,7 @@ class Repo(unittest.TestCase):
         self.assertIsInstance(ext.history_budget(self.runs, 'do', 'gpt-6-astra'), tuple)  # bad log never raises
 
     def test_owns_skips_outside_paths(self):
-        self.assertEqual(ext.owns("## Owns\n- `../other/x`, `pcb/afe/*`\n"), ['pcb/afe/*'])
+        self.assertEqual(ext.owns("## Owns\n- `../other/x`, `src/api/*`\n"), ['src/api/*'])
 
 
 class Plan(unittest.TestCase):
@@ -207,14 +207,14 @@ class Plan(unittest.TestCase):
 
         def run_agent(model, effort, prompt, cwd, out_dir, sandbox, timeout, schema=None):
             calls.append((model, sandbox, schema is not None))
-            return {'final': '1. edit pcb/afe/x\n2. run DRC' if schema is None else critic_json}
+            return {'final': '1. edit src/api/x\n2. run tests' if schema is None else critic_json}
         return run_agent, calls
 
     def test_pass_appends_plan(self):
         ra, calls = self.fake('{"pass": true, "problems": []}')
         said = []
         add = ext.plan_gate(ra, 'gpt-6-astra', 'ultra', GOOD, '.', self.run, False, said.append)
-        self.assertIn('2. run DRC', add)
+        self.assertIn('2. run tests', add)
         self.assertEqual(calls, [('gpt-6-astra', 'read-only', False), ('claude:opus', 'read-only', True)])
         self.assertTrue((self.run / 'plan.md').exists())
 
