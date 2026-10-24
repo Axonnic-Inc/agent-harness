@@ -1,0 +1,18 @@
+sequenceDiagram
+    autonumber
+    participant C as Claude Code
+    participant H as hooks.json
+    participant A as alert.sh
+    participant OS as macOS / Linux
+    actor U as You
+
+    C->>H: event (see table) + JSON on stdin {message, cwd, tool_name}
+    H->>A: "${CLAUDE_PLUGIN_ROOT}/scripts/alert.sh" 'permission needed'
+    A->>A: read ~/.config/agent-harness/alert.conf, log the alert
+    par about 1 second, never blocks Claude
+        A->>OS: afplay Sosumi (paplay on Linux)
+        A-)OS: say "Claude needs you in <project>" (spd-say)
+        A-)OS: terminal-notifier banner (notify-send)
+    end
+    A-->>C: exit 0
+    OS-->>U: 🔊 + 🗣 + 🔔

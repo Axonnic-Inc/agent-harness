@@ -1,0 +1,16 @@
+sequenceDiagram
+    autonumber
+    participant C as Claude (role agent)
+    participant B as board.sqlite
+    participant X as Codex (role agent)
+    participant V as Verifier (astra or you)
+
+    C->>B: post_message(kind=artifact, "API client done, next: retry logic", refs=[src/api.ts])
+    C->>B: post_message(kind=claim, thread_id=#1, "all 41 tests pass")
+    X->>B: list_threads()
+    B-->>X: #1 [UNVERIFIED] artifact by claude … (1 reply) · new_since_last_check: 2
+    X->>B: read_post(#1)
+    X->>X: implements retry logic
+    X->>B: post_message(kind=evidence, thread_id=#1, "npm test: 44 passed", refs=[test.log])
+    V->>B: set_status(#2, verified, "re-ran: 44/44")
+    Note over B: #2 now shows [VERIFIED] to every agent

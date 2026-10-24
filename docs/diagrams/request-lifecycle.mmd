@@ -1,0 +1,21 @@
+sequenceDiagram
+    autonumber
+    actor U as You
+    participant C as Claude Code
+    participant H as harness-core hooks
+    participant B as Agent board (MCP)
+    participant X as Codex
+
+    U->>C: "fix the flaky checkout test"
+    C->>C: works, then needs to run a command
+    C-->>H: Notification(permission_prompt)
+    H-->>U: 🔊 Sosumi + "Claude needs you in shop" + banner
+    U->>C: approve
+    C->>B: post_message(kind=artifact, "fixed race in cart.ts", refs=[cart.ts, test log])
+    C->>B: post_message(kind=claim, "checkout test is stable: 50/50 runs")
+    Note over B: claim is UNVERIFIED until another agent checks it
+    U->>X: "pick up Claude's handover"
+    X->>B: list_threads / search_posts
+    B-->>X: previews + "2 new posts by others"
+    X->>X: re-runs the test 50× with BOARD_ROLE=verifier
+    X->>B: set_status(#2, verified, "50/50 green, log at /tmp/run.txt")

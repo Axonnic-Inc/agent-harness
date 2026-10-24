@@ -13,20 +13,12 @@ astra status [run]   astra apply [run] [sN]   astra clean [run]   astra board [r
 
 ## `astra do` and `astra review`
 
-```mermaid
-flowchart LR
-    T["task / brief"] --> PF{"brief preflight<br/>Goal · Done when · Owns · Do not change"}
-    PF -->|"missing sections<br/>or Owns overlaps a running worker"| G{"who launched it?"}
-    G -->|"you"| W["⚠ warning, continue"]
-    G -->|"an agent (CLAUDECODE=1)<br/>without --force"| STOP(["stop"])
-    PF -->|ok| PL
-    W --> PL{"--plan?"}
-    PL -->|yes| PLAN["read-only plan pass"] --> CRIT["critic from the OTHER model family<br/>checks plan vs brief"] --> RUN
-    PL -->|no| RUN["agent run<br/>sandbox: workspace-write (do) / read-only (review)<br/>timeout = p90 × 1.5 of past runs"]
-    RUN --> MS["milestone watcher<br/>agent writes MILESTONE → astra commits it<br/>(the sandbox can't write .git)"]
-    RUN --> AFT["after-run audit<br/>files changed outside Owns · size vs history"]
-    AFT --> REP["final.md + post to agent board (#astra)"]
-```
+<picture>
+  <source media="(prefers-color-scheme: dark)" srcset="diagrams/astra-do-review-dark.png">
+  <img alt="astra do and review: brief preflight, optional plan and cross-family critic, sandboxed run with milestone commits, after-run audit, report." src="diagrams/astra-do-review-light.png">
+</picture>
+
+<sub>Diagram source: <a href="diagrams/astra-do-review.mmd"><code>astra-do-review.mmd</code></a></sub>
 
 - **Brief preflight.** A good brief names the goal, what *done* means, which files the agent **owns**, and what it must **not change**. Missing sections are flagged. If two `do` runs in the same repo declare overlapping `Owns`, the second is warned (or stopped, if an agent launched it).
 - **Plan gate (`--plan`).** A read-only planning pass, then a critic from the *other* model family (Codex ↔ Claude) checks the plan against the brief before any edit.
@@ -35,45 +27,12 @@ flowchart LR
 
 ## `astra compete`
 
-```mermaid
-flowchart TB
-    P["problem"] --> WS["N isolated workspaces<br/>local git clone + your uncommitted changes<br/>original repo is read-only (edit-deny)"]
-    WS --> S1 & S2 & S3 & SN
+<picture>
+  <source media="(prefers-color-scheme: dark)" srcset="diagrams/astra-compete-dark.png">
+  <img alt="astra compete: isolated workspaces, parallel solvers with different models and angles, machine check, cross-model verifiers, shared insights and refinement, judge, report, apply." src="diagrams/astra-compete-light.png">
+</picture>
 
-    subgraph SOLVE["1 · solve (parallel)"]
-        S1["s1 · gpt-6-astra<br/>first-principles"]
-        S2["s2 · gpt-6.1-sol<br/>known-methods"]
-        S3["s3 · claude:opus<br/>empirical"]
-        SN["s4…sN<br/>adversarial · reformulate · minimal"]
-    end
-
-    S1 & S2 & S3 & SN --> CHK
-
-    subgraph LOOP["2 · check → verify → share → refine (≤ --rounds)"]
-        CHK["machine check<br/>--check 'pytest -q'"] --> VER["K verifiers per answer<br/>from OTHER models, read-only<br/>score 0-10 + fatal errors"]
-        VER --> ACC{"accept?"}
-        ACC -.- RULE["all scored verifiers ≥ 8<br/>no fatal errors · check rc = 0"]
-        ACC -->|yes| DONE["✅ accepted: frozen"]
-        ACC -->|no| SH["reviewer reads ALL candidates<br/>→ shared insights brief"]
-        SH --> REF["refine: same solver session resumes<br/>with verifier reports + insights"]
-        REF --> CHK
-    end
-
-    DONE & REF --> J["3 · judge ranks all answers<br/>(reserve budget kept for this)"]
-    J --> R["REPORT.md<br/>winner · ranking table · verifier scores · tokens · USD"]
-    R --> AP["astra apply → winner's diff into your repo"]
-
-    classDef ok fill:#2da44e1a,stroke:#2da44e,stroke-width:2px
-    classDef solver fill:#1f6feb1a,stroke:#1f6feb
-    classDef verify fill:#8957e51a,stroke:#8957e5
-    classDef note fill:none,stroke:#8c959f,stroke-dasharray:3 3
-    class DONE,J,R,AP ok
-    class S1,S2,S3,SN,REF solver
-    class CHK,VER,SH verify
-    class RULE note
-    style SOLVE fill:#8c959f12,stroke:#8c959f,stroke-dasharray:4 3
-    style LOOP fill:#8c959f12,stroke:#8c959f,stroke-dasharray:4 3
-```
+<sub>Diagram source: <a href="diagrams/astra-compete.mmd"><code>astra-compete.mmd</code></a></sub>
 
 | Default | Value | Why |
 |---|---|---|

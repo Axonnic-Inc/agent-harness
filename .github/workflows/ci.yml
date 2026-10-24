@@ -46,12 +46,10 @@ jobs:
       - uses: actions/checkout@v4
       - uses: actions/setup-node@v4
         with: { node-version: "22" }
-      - name: render every mermaid diagram (fails on syntax errors)
+      - name: every diagram source renders, and every rendered image is committed
         run: |
-          echo '{"args":["--no-sandbox"]}' > /tmp/pptr.json
-          for f in README.md docs/*.md; do
-            npx -y @mermaid-js/mermaid-cli@11 -p /tmp/pptr.json -i "$f" -o "/tmp/out-$(basename "$f")" -q
-          done
+          scripts/render-diagrams.sh --check
+          for f in docs/diagrams/*.mmd; do n=${f%.mmd}; test -f "$n-light.png" && test -f "$n-dark.png" || { echo "missing PNG for $f: run scripts/render-diagrams.sh"; exit 1; }; done
       - uses: actions/setup-python@v5
         with: { python-version: "3.12" }
       - run: pip install -r docs/requirements.txt && mkdocs build --strict

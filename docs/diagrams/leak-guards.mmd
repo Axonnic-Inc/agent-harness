@@ -1,0 +1,6 @@
+flowchart LR
+    ED["you edit"] --> PC{"pre-commit<br/>gitleaks + shellcheck"}
+    PC -->|"leak found"| BLK(["commit blocked"])
+    PC -->|clean| CM["commit"] --> PU["push"] --> CI{"CI: gitleaks (full history)<br/>shellcheck · tests · plugin validate · diagrams"}
+    CI -->|fail| RED(["❌ red build"])
+    CI -->|pass| OK(["✅"])

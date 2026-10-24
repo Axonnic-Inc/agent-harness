@@ -1,0 +1,7 @@
+stateDiagram-v2
+    direction LR
+    [*] --> unverified: post_message
+    unverified --> verified: set_status (judge role, not author)
+    unverified --> refuted: set_status (judge role, not author)
+    verified --> unverified: re-opened with reason
+    refuted --> unverified: re-opened with reason

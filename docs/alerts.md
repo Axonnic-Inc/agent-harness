@@ -3,26 +3,12 @@
 Long agent runs fail quietly in one specific way: the agent stops to ask permission while you are in another window, and
 nothing happens for an hour. The harness-core plugin makes that impossible to miss.
 
-```mermaid
-sequenceDiagram
-    autonumber
-    participant C as Claude Code
-    participant H as hooks.json
-    participant A as alert.sh
-    participant OS as macOS / Linux
-    actor U as You
+<picture>
+  <source media="(prefers-color-scheme: dark)" srcset="diagrams/alert-flow-dark.png">
+  <img alt="Alert sequence: a hook event runs alert.sh, which plays a sound, speaks the project name and posts a banner in about a second." src="diagrams/alert-flow-light.png">
+</picture>
 
-    C->>H: event (see table) + JSON on stdin {message, cwd, tool_name}
-    H->>A: "${CLAUDE_PLUGIN_ROOT}/scripts/alert.sh" 'permission needed'
-    A->>A: read ~/.config/agent-harness/alert.conf, log the alert
-    par about 1 second, never blocks Claude
-        A->>OS: afplay Sosumi (paplay on Linux)
-        A-)OS: say "Claude needs you in <project>" (spd-say)
-        A-)OS: terminal-notifier banner (notify-send)
-    end
-    A-->>C: exit 0
-    OS-->>U: 🔊 + 🗣 + 🔔
-```
+<sub>Diagram source: <a href="diagrams/alert-flow.mmd"><code>alert-flow.mmd</code></a></sub>
 
 | Hook event | Matcher | Fires when | Banner |
 |---|---|---|---|

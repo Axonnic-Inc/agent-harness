@@ -1,0 +1,41 @@
+flowchart TB
+    you(("🧑 You"))
+
+    cc["<b>Claude Code</b><br/><sub>plugins: harness-core · dev-mcp · motion-design</sub>"]
+    cx["<b>Codex</b><br/><sub>AGENTS.md rules · compete skill</sub>"]
+
+    subgraph H["agent-harness · this repo, symlinked into your home"]
+        alert["<b>harness-alert</b><br/><sub>🔊 sound · 🗣 voice · 🔔 banner → you</sub>"]
+        board[("<b>agent board</b><br/><sub>MCP · SQLite · verified claims</sub>")]
+        astra["<b>astra</b><br/><sub>do · review · compete<br/>N solvers → cross-model verifiers → judge</sub>"]
+        ws["<b>with-secrets</b><br/><sub>token injected at launch</sub>"]
+    end
+
+    mcp["<b>dev MCP servers</b><br/><sub>Playwright · Chrome DevTools · Context7</sub>"]
+    kc[("🔐 <b>OS keychain</b><br/><sub>service agent-harness</sub>")]
+    tok["<b>token-backed MCP</b><br/><sub>Supabase · Vercel · …</sub>"]
+
+    you -->|chat| cc
+    you -->|chat| cx
+    cc -->|"hook: blocked on you"| alert
+    cc -->|"MCP: post · search · verify"| board
+    cx -->|"MCP: post · search · verify"| board
+    cx -->|"astra compete"| astra
+    astra -->|"run report"| board
+    board -->|escalate| alert
+    cc --> mcp
+    cc -->|launches| ws
+    ws --> tok
+    ws -->|"reads on demand"| kc
+
+    classDef agent fill:#1f6feb1a,stroke:#1f6feb,stroke-width:2px
+    classDef core fill:#2da44e1a,stroke:#2da44e,stroke-width:2px
+    classDef store fill:#8957e51a,stroke:#8957e5,stroke-width:2px
+    classDef secret fill:#d299221f,stroke:#d29922,stroke-width:2px
+    classDef ext fill:#6e77811a,stroke:#6e7781
+    class cc,cx agent
+    class alert,astra,ws core
+    class board store
+    class kc secret
+    class mcp,tok ext
+    style H fill:#8c959f12,stroke:#8c959f,stroke-dasharray:4 3

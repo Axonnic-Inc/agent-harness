@@ -1,0 +1,12 @@
+flowchart LR
+    T["task / brief"] --> PF{"brief preflight<br/>Goal · Done when · Owns · Do not change"}
+    PF -->|"missing sections<br/>or Owns overlaps a running worker"| G{"who launched it?"}
+    G -->|"you"| W["⚠ warning, continue"]
+    G -->|"an agent (CLAUDECODE=1)<br/>without --force"| STOP(["stop"])
+    PF -->|ok| PL
+    W --> PL{"--plan?"}
+    PL -->|yes| PLAN["read-only plan pass"] --> CRIT["critic from the OTHER model family<br/>checks plan vs brief"] --> RUN
+    PL -->|no| RUN["agent run<br/>sandbox: workspace-write (do) / read-only (review)<br/>timeout = p90 × 1.5 of past runs"]
+    RUN --> MS["milestone watcher<br/>agent writes MILESTONE → astra commits it<br/>(the sandbox can't write .git)"]
+    RUN --> AFT["after-run audit<br/>files changed outside Owns · size vs history"]
+    AFT --> REP["final.md + post to agent board (#astra)"]
